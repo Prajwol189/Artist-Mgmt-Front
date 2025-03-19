@@ -1,131 +1,130 @@
-"use client"; // Ensure this is a Client Component
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+"use client";
+import React, { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
-// import lana from "../assets/lanaLogin.jpeg";
-import { useState } from "react";
-import { login } from "@/api/api"; // Import the login function
-// import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; // For error handling
-import { AlertCircle } from "lucide-react"; // For error icon
-import { useRouter } from "next/navigation"; // For programmatic navigation
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null); // State for error handling
-  const router = useRouter(); // Initialize useRouter
+import { login } from "@/api/api"; // Your login API function
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null); // Clear previous errors
+import signImage from "@/assets/login.jpg";
+
+export function LoginForm() {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const router = useRouter();
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!email.trim() || !password.trim()) {
+      toast.error("Email and password are required.");
+      return;
+    }
 
     try {
       const credentials = { email, password };
-      const response = await login(credentials); // Call the login API
-      console.log("Login successful:", response);
+      const response = await login(credentials);
 
-      // Handle successful login (e.g., store tokens, redirect, etc.)
+      // Store tokens and user info
       localStorage.setItem("access_token", response.access_token);
       localStorage.setItem("refresh_token", response.refresh_token);
       localStorage.setItem("user", JSON.stringify(response.user));
 
-      // Redirect to /dashboard
-      router.push("/dashboard"); // Programmatic navigation
+      toast.success("Login successful!");
+      router.push("/dashboard");
     } catch (error: any) {
-      // console.error("Login failed:", error);
-      setError(error.message || "Invalid email or password. Please try again.");
+      toast.error(error.message || "Invalid email or password.");
     }
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      {/* Error Alert */}
-      {/* {error && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )} */}
+    <div className="min-h-screen grid lg:grid-cols-2">
+      {/* Left Side - Image and Welcome Text */}
+      <div className="relative hidden lg:flex flex-col items-center justify-center p-8 bg-gradient-to-br from-white via-gray-700 to-black text-white">
+        <div className="max-w-md mx-auto text-center space-y-6">
+          <Image
+            src={signImage}
+            alt="Signup Illustration"
+            width={300}
+            height={300}
+            className="mx-auto rounded-xl shadow-lg"
+          />
+          <h2 className="text-3xl font-extrabold">Welcome Back!</h2>
+          <p className="text-lg text-white/80">
+            Access your account and manage your work efficiently.
+          </p>
+          <Link href={"/"}>
+            <Button className="bg-white text-black hover:bg-gray-300 transition duration-300">
+              Explore
+            </Button>
+          </Link>
+        </div>
+      </div>
 
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <form onSubmit={handleSubmit} className="p-6 md:p-8">
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
-                <p className="text-muted-foreground text-balance">
-                  Login to the
-                </p>
-                <p className="text-muted-foreground text-balance">
-                  Artist Management System
-                </p>
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="example@gmail.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <a
-                    href="#"
-                    className="ml-auto text-sm underline-offset-2 hover:underline text-blue-800"
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                Login
-              </Button>
-              <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <a
-                  href="/signup"
-                  className="underline underline-offset-4 text-blue-800"
-                >
-                  Sign up
-                </a>
-              </div>
-            </div>
-          </form>
-          <div className="bg-muted relative hidden md:block">
-            <Image
-              src=""
-              alt="Image"
-              fill
-              style={{ objectFit: "cover" }}
-              className="dark:brightness-[0.2] dark:grayscale"
-            />
+      {/* Right Side - Login Form */}
+      <div className="flex flex-col items-center justify-center p-8 w-full bg-white">
+        <div className="w-full max-w-md space-y-6">
+          <div className="text-center">
+            <h1 className="text-4xl font-extrabold text-gray-800 drop-shadow-md">
+              Sign In
+            </h1>
+            <p className="text-gray-500 text-md mt-2">
+              Enter your details to continue.
+            </p>
           </div>
-        </CardContent>
-      </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our{" "}
-        <a href="/tos">Terms of Service</a> and{" "}
-        <a href="/policy">Privacy Policy</a>.
+
+          <form
+            className="space-y-4 bg-gray-100 p-6 rounded-lg shadow-md"
+            onSubmit={handleSubmit}
+          >
+            <Input
+              className="p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800"
+              id="email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+              required
+            />
+            <Input
+              className="p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800"
+              value={password}
+              id="password"
+              type="password"
+              name="password"
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              required
+            />
+
+            <div className="text-right">
+              <Link
+                href="#"
+                className="text-sm text-gray-700 hover:text-black transition duration-300"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
+            <Button className="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 transition duration-300">
+              Login
+            </Button>
+
+            <p className="text-center text-sm text-gray-600">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/signup"
+                className="text-black font-semibold hover:text-gray-800 transition duration-300"
+              >
+                Sign up
+              </Link>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );
 }
+export default LoginForm;
