@@ -1,16 +1,14 @@
-import type { Metadata } from "next";
+"use client";
+import { useRouter } from "next/navigation";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SongsTable } from "@/components/songs-table";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Songs",
-  description: "Manage your songs collection",
-};
-
 export default function SongsPage() {
+  const router = useRouter();
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -24,7 +22,10 @@ export default function SongsPage() {
                   Manage your songs collection and metadata.
                 </p>
               </div>
-              <Button className="flex items-center gap-1">
+              <Button
+                className="flex items-center gap-1"
+                onClick={() => router.push("song/edit")}
+              >
                 <Plus className="h-4 w-4" />
                 Add Song
               </Button>

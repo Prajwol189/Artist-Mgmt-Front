@@ -1,7 +1,6 @@
 "use client";
 
-import { ChevronRight, type LucideIcon } from "lucide-react";
-
+import Link from "next/link";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -9,6 +8,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { type LucideIcon } from "lucide-react";
 
 export function NavMain({
   items,
@@ -30,17 +30,17 @@ export function NavMain({
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton tooltip={item.title}>
-              {item.icon && <item.icon />}
-              <span>{item.title}</span>
-              {/* Removing the collapsible icon (ChevronRight) */}
-            </SidebarMenuButton>
-            {/* Removing the collapsible content as it's no longer necessary */}
+            <Link href={item.url} passHref>
+              <SidebarMenuButton as="a" tooltip={item.title}>
+                {item.icon && <item.icon />}
+                <span>{item.title}</span>
+              </SidebarMenuButton>
+            </Link>
             {item.items?.map((subItem) => (
               <SidebarMenuItem key={subItem.title}>
-                <a href={subItem.url}>
+                <Link href={subItem.url} passHref>
                   <span>{subItem.title}</span>
-                </a>
+                </Link>
               </SidebarMenuItem>
             ))}
           </SidebarMenuItem>

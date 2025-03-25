@@ -2,58 +2,33 @@
 
 import * as React from "react";
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  SquareTerminal,
-  Settings2,
-} from "lucide-react";
-
-import { NavMain } from "@/components/nav-main";
-import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
-import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { NavUser } from "@/components/nav-user";
+import Image from "next/image";
+import Link from "next/link";
+import { NavMain } from "@/components/nav-main"; // Import from separate file
+import { SquareTerminal, Bot } from "lucide-react";
 
-// This is sample data.
 const data = {
   user: {
     name: "shadcn",
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: "GalleryVerticalEnd",
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: "AudioWaveform",
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: "Command",
-      plan: "Free",
-    },
-  ],
   navMain: [
     {
       title: "Artist",
-      url: "#",
+      url: "/artist",
       icon: SquareTerminal,
     },
     {
       title: "Song",
-      url: "#",
+      url: "/song",
       icon: Bot,
     },
   ],
@@ -63,7 +38,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <Link href="/">
+          <Image src="/logo.png" alt="Logo" width={100} height={50} />
+        </Link>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
