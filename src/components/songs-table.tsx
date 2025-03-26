@@ -3,14 +3,11 @@
 import * as React from "react";
 import {
   type ColumnDef,
-  type ColumnFiltersState,
   type SortingState,
-  type VisibilityState,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
+  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal, Play } from "lucide-react";
@@ -39,7 +36,7 @@ import { fetchMusic } from "../api/api";
 export type Song = {
   id: string;
   title: string;
-  artist: string; // Now a string, not an ID
+  artist: string;
   album: string;
   genre: string;
 };
@@ -48,18 +45,11 @@ export function SongsTable() {
   const [musicData, setMusicData] = React.useState<Song[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
 
   React.useEffect(() => {
     const getMusicData = async () => {
       try {
         const music = await fetchMusic();
-        console.log("Fetched music with artists:", music); // Debugging
         setMusicData(music);
       } catch (error) {
         console.error("Error fetching music:", error);
@@ -75,7 +65,6 @@ export function SongsTable() {
     {
       id: "play",
       enableSorting: false,
-      enableHiding: false,
       cell: () => (
         <Button variant="ghost" size="icon" className="h-8 w-8">
           <Play className="h-4 w-4" />
@@ -90,8 +79,7 @@ export function SongsTable() {
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Title
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          Title <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
       cell: ({ row }) => (
@@ -131,14 +119,13 @@ export function SongsTable() {
               <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText(song.id)}
               >
-                Copy song ID
+                Copy Song ID
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Edit song</DropdownMenuItem>
-              <DropdownMenuItem>View details</DropdownMenuItem>
-              <DropdownMenuItem>Add to playlist</DropdownMenuItem>
+              <DropdownMenuItem>Edit Song</DropdownMenuItem>
+              <DropdownMenuItem>View Details</DropdownMenuItem>
               <DropdownMenuItem className="text-destructive">
-                Delete song
+                Delete Song
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -151,34 +138,27 @@ export function SongsTable() {
     data: musicData,
     columns,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-    },
+    state: { sorting },
   });
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between">
         <Input
           placeholder="Filter songs..."
-          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+          className="max-w-sm"
           onChange={(event) =>
             table.getColumn("title")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
         />
+        <Button variant="default" className="flex items-center gap-2">
+          Add Song
+        </Button>
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-md border shadow-sm">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
