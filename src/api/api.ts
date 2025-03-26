@@ -37,12 +37,36 @@ export const login = async (credentials: {
     throw error.response ? error.response.data : error.message;
   }
 };
+export const fetchArtists = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}artists/`);
+    return response.data; // Should return an array of artists
+  } catch (error: any) {
+    throw error.response ? error.response.data : error.message;
+  }
+};
 
 // Fetch all albums (for Read)
+
+// Fetch albums with artist names
 export const fetchAlbums = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}albums/`);
-    return response.data; // Should return an array of albums
+    return response.data.map((album: any) => ({
+      id: album.id,
+      name: album.name,
+      release_date: album.release_date || "Unknown Date",
+      artist: album.artist_name, // Now directly getting artist name from API
+    }));
+  } catch (error: any) {
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
+// Delete an album
+export const deleteAlbum = async (albumId: number) => {
+  try {
+    await axios.delete(`${API_BASE_URL}albums/${albumId}/`);
   } catch (error: any) {
     throw error.response ? error.response.data : error.message;
   }
@@ -83,14 +107,6 @@ export const updateAlbum = async (
 };
 
 // Delete an album (for Delete)
-export const deleteAlbum = async (albumId: number) => {
-  try {
-    const response = await axios.delete(`${API_BASE_URL}albums/${albumId}/`);
-    return response.data; // Should return a success message
-  } catch (error: any) {
-    throw error.response ? error.response.data : error.message;
-  }
-};
 
 // Fetch music with artist and album names (no changes here)
 export const fetchMusic = async () => {

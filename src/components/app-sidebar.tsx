@@ -12,7 +12,9 @@ import { NavUser } from "@/components/nav-user";
 import Image from "next/image";
 import Link from "next/link";
 import { NavMain } from "@/components/nav-main"; // Import from separate file
-import { SquareTerminal, Bot } from "lucide-react";
+import { SquareTerminal, Bot, Music, Disc } from "lucide-react"; // Import other icons
+
+import logo from "../assets/logo.png"; // Import the image directly
 
 const data = {
   user: {
@@ -22,14 +24,24 @@ const data = {
   },
   navMain: [
     {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: SquareTerminal, // Keeping the existing icon or you can change it
+    },
+    {
       title: "Artist",
       url: "/artist",
-      icon: SquareTerminal,
+      icon: Music, // Changed icon for Artist
+    },
+    {
+      title: "Album",
+      url: "/album",
+      icon: Disc, // Changed icon for Album
     },
     {
       title: "Song",
       url: "/song",
-      icon: Bot,
+      icon: Bot, // Keeping the existing icon for Song
     },
   ],
 };
@@ -39,7 +51,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <Link href="/">
-          <Image src="/logo.png" alt="Logo" width={100} height={50} />
+          <Image src={logo} alt="Logo" width={100} height={50} />
         </Link>
       </SidebarHeader>
       <SidebarContent>

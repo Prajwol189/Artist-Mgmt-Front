@@ -3,17 +3,14 @@
 import * as React from "react";
 import {
   type ColumnDef,
-  type ColumnFiltersState,
   type SortingState,
-  type VisibilityState,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { Play, MoreHorizontal, ArrowUpDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -34,7 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { fetchAlbums, deleteAlbum } from "../api/api"; // Assume fetchAlbums() returns album data
+import { fetchAlbums } from "../api/api";
 
 export type Album = {
   id: number;
@@ -47,18 +44,12 @@ export function AlbumsTable() {
   const [albumsData, setAlbumsData] = React.useState<Album[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [columnFilters, setColumnFilters] = React.useState<any>([]);
 
   React.useEffect(() => {
     const getAlbumsData = async () => {
       try {
         const albums = await fetchAlbums();
-        console.log("Fetched albums:", albums); // Debugging
         setAlbumsData(albums);
       } catch (error) {
         console.error("Error fetching albums:", error);
@@ -72,14 +63,21 @@ export function AlbumsTable() {
 
   const columns: ColumnDef<Album>[] = [
     {
+      id: "play",
+      cell: () => (
+        <Button variant="ghost" size="icon">
+          <Play className="h-5 w-5" />
+        </Button>
+      ),
+    },
+    {
       accessorKey: "name",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          Name <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
       cell: ({ row }) => (
@@ -98,26 +96,29 @@ export function AlbumsTable() {
     },
     {
       id: "actions",
-      enableHiding: false,
       cell: ({ row }) => {
         const album = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() =>
+                  navigator.clipboard.writeText(album.id.toString())
+                }
+              >
+                Copy album ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem>Edit album</DropdownMenuItem>
               <DropdownMenuItem>View details</DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-destructive"
-                onClick={() => handleDelete(album.id)}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
+              <DropdownMenuItem>Add to playlist</DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive">
                 Delete album
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -131,43 +132,25 @@ export function AlbumsTable() {
     data: albumsData,
     columns,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-    },
+    state: { sorting },
   });
-
-  const handleDelete = async (albumId: number) => {
-    try {
-      await deleteAlbum(albumId); // Assume deleteAlbum is a function to delete the album
-      setAlbumsData((prev) => prev.filter((album) => album.id !== albumId));
-    } catch (error) {
-      console.error("Error deleting album:", error);
-    }
-  };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between">
         <Input
-          placeholder="Filter albums..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+          placeholder="Search albums..."
+          onChange={(e) =>
+            table.getColumn("name")?.setFilterValue(e.target.value)
           }
           className="max-w-sm"
         />
       </div>
-      <div className="rounded-md border">
+
+      <div className="rounded-md border shadow-sm">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -214,7 +197,7 @@ export function AlbumsTable() {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  No albums found.
                 </TableCell>
               </TableRow>
             )}
